@@ -14,6 +14,7 @@ import {
   ChevronLeft, 
   ChevronRight,
   LogOut,
+  Power,
   Store,
   Layers,
   PieChart,
@@ -30,15 +31,21 @@ interface SidebarProps {
   setIsOpenMobile: (val: boolean) => void;
 }
 
-const menuItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, href: '/admin/analytics' },
-  { name: 'Live Orders', icon: ShoppingCart, href: '/admin/orders', badge: '5' },
+interface MenuItem {
+  name: string;
+  icon: any;
+  href: string;
+  badge?: string | null;
+}
+
+const menuItems: MenuItem[] = [
+  { name: 'Dashboard', icon: LayoutDashboard, href: '/admin/dashboard' },
+  { name: 'Live Orders', icon: ShoppingCart, href: '/admin/orders', badge: 'NEW' },
   { name: 'Products', icon: Package, href: '/admin/products' },
   { name: 'Inventory', icon: Layers, href: '/admin/inventory' },
   { name: 'Categories', icon: Layers, href: '/admin/categories' },
   { name: 'Customers', icon: Users, href: '/admin/customers' },
   { name: 'Analytics', icon: PieChart, href: '/admin/analytics' },
-  { name: 'Delivery Settings', icon: Truck, href: '/admin/settings/delivery' },
   { name: 'Settings', icon: Settings, href: '/admin/settings' },
 ];
 
@@ -46,20 +53,21 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isOpenMobile, setIsOpenMobile }:
   const pathname = usePathname();
   const router = useRouter();
   const { currentStore } = useAppStore();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push('/admin/login');
+    const CUSTOMER_APP_URL = "http://192.168.1.7:8081/login";
+    window.location.href = CUSTOMER_APP_URL;
   };
 
-  const dynamicMenuItems = [
-    ...menuItems.filter(item => item.name !== 'Delivery Settings'),
-    { 
-      name: 'Delivery Settings', 
-      icon: Truck, 
-      href: currentStore ? `/admin/store/${currentStore.id}/settings/delivery` : '/admin/settings/delivery' 
-    }
-  ];
+  const dynamicMenuItems = menuItems;
 
   const sidebarContent = (
     <div className="h-full flex flex-col">
@@ -92,7 +100,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isOpenMobile, setIsOpenMobile }:
       {/* Navigation */}
       <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
         {dynamicMenuItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== '/admin/analytics' && pathname.startsWith(item.href));
           return (
             <Link 
               key={item.name} 
@@ -137,7 +145,9 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isOpenMobile, setIsOpenMobile }:
             isCollapsed && "justify-center"
           )}
         >
-          <LogOut size={22} />
+          <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-rose-100 transition-colors">
+            <Power size={18} />
+          </div>
           {!isCollapsed && <span>Sign Out</span>}
         </button>
       </div>

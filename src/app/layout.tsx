@@ -9,15 +9,45 @@ export const metadata: Metadata = {
   description: "Billion-dollar scale admin platform for fresh juice delivery",
 };
 
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { ThemeProvider } from "@/components/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: `
+          #__next-prerender-indicator,
+          #vercel-toolbar,
+          .vercel-toolbar-container,
+          [data-vercel-toolbar],
+          [data-nextjs-toast],
+          [data-nextjs-dialog-overlay] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: fixed !important;
+            top: -9999px !important;
+            left: -9999px !important;
+          }
+        `}} />
+      </head>
       <body className={`${outfit.variable} font-sans antialiased`}>
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </ThemeProvider>
       </body>
     </html>
   );
