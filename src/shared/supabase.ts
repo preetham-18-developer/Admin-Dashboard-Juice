@@ -15,14 +15,8 @@ const SharedStorageAdapter = {
       }
       return null;
     }
-    // Native (React Native / Expo) - Using indirect require to hide from web bundlers
-    try {
-      const expoSecureStore = 'expo-secure-store';
-      const SecureStore = require(expoSecureStore);
-      return await SecureStore.getItemAsync(key);
-    } catch (e) {
-      return null;
-    }
+    // Mobile logic removed for web-only dashboard build
+    return null;
   },
   setItem: async (key: string, value: string) => {
     if (isWeb) {
@@ -31,11 +25,6 @@ const SharedStorageAdapter = {
       }
       return;
     }
-    try {
-      const expoSecureStore = 'expo-secure-store';
-      const SecureStore = require(expoSecureStore);
-      await SecureStore.setItemAsync(key, value);
-    } catch (e) {}
   },
   removeItem: async (key: string) => {
     if (isWeb) {
@@ -44,11 +33,6 @@ const SharedStorageAdapter = {
       }
       return;
     }
-    try {
-      const expoSecureStore = 'expo-secure-store';
-      const SecureStore = require(expoSecureStore);
-      await SecureStore.deleteItemAsync(key);
-    } catch (e) {}
   },
 };
 
