@@ -163,7 +163,7 @@ const DashboardPage = () => {
       const products = productsResult.data || [];
       const orderItems = orderItemsResult.data || [];
 
-      const storeSpecificCustomers = new Set(orders.map(o => o.user_id)).size;
+      const storeSpecificCustomers = new Set((orders as any[]).map(o => o.user_id)).size;
 
       let totalRevenue = 0;
       const distribution: Record<string, number> = {};
@@ -467,7 +467,7 @@ const DashboardPage = () => {
             <div className="h-[200px] flex items-center justify-center">
               {loading ? (
                 <Skeleton className="w-32 h-32 rounded-full" />
-              ) : (
+              ) : statusDistribution.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -486,6 +486,8 @@ const DashboardPage = () => {
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
+              ) : (
+                <div className="text-center text-slate-400 text-sm">No data available</div>
               )}
             </div>
           </div>

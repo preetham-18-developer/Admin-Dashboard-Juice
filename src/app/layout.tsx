@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import HideDevTools from "@/components/HideDevTools";
 
 export default function RootLayout({
   children,
@@ -21,19 +22,36 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: `
+          /* Hide all Next.js and Vercel development tools */
           #__next-prerender-indicator,
           #vercel-toolbar,
           .vercel-toolbar-container,
           [data-vercel-toolbar],
           [data-nextjs-toast],
-          [data-nextjs-dialog-overlay] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            position: fixed !important;
-            top: -9999px !important;
-            left: -9999px !important;
+          [data-nextjs-dialog-overlay],
+          [data-devtools-toast],
+          [role="complementary"],
+          div[role="status"],
+          .nextjs-container-errors,
+          [id*="__next-error"],
+          button[title*="Dev Tools"],
+          button[aria-label*="Dev Tools"],
+          svg[aria-label*="Next.js"],
+          [style*="position: fixed"][style*="bottom: 0"],
+          [style*="position: fixed"][style*="right: 0"],
+          [style*="position: fixed"][style*="z-index: 1"] {
+            display: none !important !important;
+            visibility: hidden !important !important;
+            opacity: 0 !important !important;
+            pointer-events: none !important !important;
+            position: fixed !important !important;
+            top: -9999px !important !important;
+            left: -9999px !important !important;
+            z-index: -9999 !important !important;
+            height: 0 !important !important;
+            width: 0 !important !important;
+            margin: 0 !important !important;
+            padding: 0 !important !important;
           }
         `}} />
       </head>
@@ -44,6 +62,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <HideDevTools />
           <ErrorBoundary>
             {children}
           </ErrorBoundary>

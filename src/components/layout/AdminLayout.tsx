@@ -67,33 +67,45 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
-          const CUSTOMER_APP_URL = "http://192.168.1.7:8081/login";
-          window.location.href = CUSTOMER_APP_URL;
+          const CUSTOMER_APP_URL = process.env.NEXT_PUBLIC_CUSTOMER_APP_URL || "http://localhost:8081";
+          window.location.href = `${CUSTOMER_APP_URL}/login`;
           return;
         }
 
-        // Only fetch profile if not already in store or if ID changed
-        if (!user || user.id !== session.user.id) {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('id, full_name, role')
-            .eq('id', session.user.id)
-            .single();
+        const userEmail = session.user.email;
+        const ADMIN_EMAIL = "preethamgoud2006@gmail.com";
 
-          if (error || !profile || !['super_admin', 'store_admin', 'admin'].includes(profile.role)) {
-            await supabase.auth.signOut();
-            setUser(null);
-            window.location.href = "http://192.168.1.7:8081/login?error=unauthorized";
-            return;
+        // STRICT EMAIL-BASED BLOCKING
+        const isAuthorizedAdmin = userEmail === ADMIN_EMAIL;
+
+        if (!isAuthorizedAdmin) {
+          console.error('Unauthorized admin dashboard access attempt by:', userEmail);
+          
+          // Optional: Force logout if they aren't the admin to clear session
+          // await supabase.auth.signOut();
+          
+          if (typeof window !== 'undefined') {
+            localStorage.clear();
           }
-
-          setUser({
-            id: profile.id,
-            name: profile.full_name || 'Admin User',
-            role: profile.role,
-            email: session.user.email
-          });
+          const CUSTOMER_APP_URL = process.env.NEXT_PUBLIC_CUSTOMER_APP_URL || "http://192.168.1.7:8081";
+          window.location.href = `${CUSTOMER_APP_URL}/login?error=unauthorized`;
+          return;
         }
+
+        // If they ARE the admin, fetch profile to get their name
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, full_name, role')
+          .eq('id', session.user.id)
+          .single();
+
+        // Update store with fresh data
+        setUser({
+          id: session.user.id,
+          name: profile?.full_name || 'Admin User',
+          role: isAuthorizedAdmin ? 'super_admin' : (profile?.role || 'admin'),
+          email: session.user.email
+        });
 
         // AUTO-LOAD STORE INFO if not set
         if (!currentStore) {
