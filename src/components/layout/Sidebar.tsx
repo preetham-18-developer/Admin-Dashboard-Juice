@@ -34,7 +34,7 @@ interface SidebarProps {
 
 interface MenuItem {
   name: string;
-  icon: any;
+  icon: React.ElementType;
   href: string;
   badge?: string | null;
 }
@@ -59,6 +59,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isOpenMobile, setIsOpenMobile }:
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
@@ -18,7 +18,6 @@ import {
 import AdminLayout from '@/components/layout/AdminLayout';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
-import { useAppStore } from '@/store/useStore';
 
 const EditProductPage = () => {
   const router = useRouter();
@@ -41,12 +40,10 @@ const EditProductPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    if (id) fetchProduct();
-  }, [id]);
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
+    if (!id) return;
     try {
       setFetching(true);
       const { data, error: fetchError } = await supabase
@@ -72,7 +69,15 @@ const EditProductPage = () => {
     } finally {
       setFetching(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+    fetchProduct();
+  }, [fetchProduct]);
+
+  if (!mounted) return null;
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

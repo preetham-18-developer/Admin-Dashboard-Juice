@@ -14,8 +14,8 @@ import {
 import { cn } from '@/lib/utils';
 
 interface DeliveryAnalyticsProps {
-  orders: any[];
-  partners: any[];
+  orders: Array<{ id: string; delivery_status: string; [key: string]: unknown }>;
+  partners: Array<{ id: string; [key: string]: unknown }>;
 }
 
 export default function DeliveryAnalytics({ orders, partners }: DeliveryAnalyticsProps) {
